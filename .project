@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>drinks-management</name>
+	<comment></comment>
+	<buildSpec>
+		<buildCommand>
+			<name>com.github.rustdt.ide.core.Builder</name>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.github.rustdt.ide.core.nature</nature>
+	</natures>
+</projectDescription>
