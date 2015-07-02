@@ -1,0 +1,10 @@
+# rust stuff
+
+target/
+
+# lock and backup files
+
+*.lock
+*.swp
+*.bak
+*~
