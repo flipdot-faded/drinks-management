@@ -5,8 +5,7 @@ use std::convert::From;
 pub enum ProcessError {
 	IoErr(io::Error),
 	EanParseErr(String),
-	EanLenErr(u64),
-	EanChecksumErr(u64)
+	EanLenErr(u64)
 }
 
 impl fmt::Display for ProcessError {
@@ -14,8 +13,7 @@ impl fmt::Display for ProcessError {
 		match self {
 			&ProcessError::IoErr(_) => f.write_str("I/O error!"),
 			&ProcessError::EanParseErr(ref s) => f.write_fmt(format_args!("Not an EAN code: \"{}\"", s)),
-			&ProcessError::EanLenErr(code) => f.write_fmt(format_args!("Code is of wrong length: \"{}\"", code)),
-			&ProcessError::EanChecksumErr(code) => f.write_fmt(format_args!("Wrong checksum in \"{}\"", code))
+			&ProcessError::EanLenErr(code) => f.write_fmt(format_args!("Code is of wrong length: \"{}\"", code))
 		}
 	}
 }

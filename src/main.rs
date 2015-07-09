@@ -19,12 +19,6 @@ fn main() {
 }
 
 fn process_line(line :io::Result<String>, state :&mut State) -> Result<(), ProcessError> {
-	let code = try!(line.map_err(ProcessError::IoErr));
-	code.parse::<u64>()
-		.map_err(|_| ProcessError::EanParseErr(code))
-		.and_then(|ean| process_ean(ean, state))
-}
-
-fn process_ean(ean :u64, state :&mut State) -> Result<(), ProcessError> {
+	let ean = try!(line.map_err(ProcessError::IoErr));
 	Ok(())
 }
