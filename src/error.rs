@@ -4,16 +4,15 @@ use std::convert::From;
 #[derive(Debug)]
 pub enum ProcessError {
 	IoErr(io::Error),
-	EanParseErr(String),
-	EanLenErr(u64)
+	EanLenErr(String)
 }
 
 impl fmt::Display for ProcessError {
 	fn fmt(&self, f :&mut fmt::Formatter) -> Result<(), fmt::Error> {
 		match self {
 			&ProcessError::IoErr(_) => f.write_str("I/O error!"),
-			&ProcessError::EanParseErr(ref s) => f.write_fmt(format_args!("Not an EAN code: \"{}\"", s)),
-			&ProcessError::EanLenErr(code) => f.write_fmt(format_args!("Code is of wrong length: \"{}\"", code))
+			&ProcessError::EanLenErr(ref ean) => f.write_fmt(
+				format_args!("EAN is of wrong length ({}): \"{}\"", ean.len(), ean))
 		}
 	}
 }
