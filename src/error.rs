@@ -4,7 +4,9 @@ use std::convert::From;
 #[derive(Debug)]
 pub enum ProcessError {
 	IoErr(io::Error),
-	EanLenErr(String)
+	EanLenErr(String),
+	BadEan(String),
+	UnknownMode(u8)
 }
 
 impl fmt::Display for ProcessError {
@@ -12,7 +14,11 @@ impl fmt::Display for ProcessError {
 		match self {
 			&ProcessError::IoErr(_) => f.write_str("I/O error!"),
 			&ProcessError::EanLenErr(ref ean) => f.write_fmt(
-				format_args!("EAN is of wrong length ({}): \"{}\"", ean.len(), ean))
+				format_args!("EAN is of wrong length ({}): \"{}\"", ean.len(), ean)),
+			&ProcessError::BadEan(ref ean) => f.write_fmt(
+				format_args!("EAN not recognized: {}", ean)),
+			&ProcessError::UnknownMode(z) => f.write_fmt(
+				format_args!("Unknown mode: {}", z))
 		}
 	}
 }
