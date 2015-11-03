@@ -5,3 +5,6 @@ authors = [
 	"Jonas Platte <mail@jonasplatte.de>",
 	"Anselm von Wangenheim <anselm.w@gmx.de>"
 ]
+
+[dependencies]
+postgres = "0.10"

@@ -3,9 +3,12 @@ mod error;
 
 use std::io;
 use std::io::prelude::*;
+use std::process::Command;
 
 use state::*;
 use error::*;
+
+const DISPLAY_APP_PATH : &'static str = "./app";
 
 fn main() {
 	let stdin = io::stdin();
@@ -22,7 +25,7 @@ fn main() {
 fn process_line(line :io::Result<String>, state :&State) -> Result<State, ProcessError> {
 	let ean = try!(line.map_err(ProcessError::IoErr));
 	let len = ean.len();
-	if len != 8 && len != 13 && len != 14 {
+	if ![8, 13, 14, 17].contains(&len) {
 		return Err(ProcessError::EanLenErr(ean))
 	}
 
@@ -50,6 +53,18 @@ fn process_ctrl_card(num_bottles :u8) -> Result<State, ProcessError> {
 }
 
 fn process_balance_card(ean :&str) -> Result<State, ProcessError> {
+	// TODO: Get balance
+	let balance = 5;
+
+	let status = Command::new(DISPLAY_APP_PATH)
+		.arg(balance.to_string())
+		.status()
+		.unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
+
+	if !status.success() {
+		panic!("Display app didn't terminate successfully");
+	}
+
 	Ok(State::Null)
 }
 
