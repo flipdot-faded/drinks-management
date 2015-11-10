@@ -1,12 +1,20 @@
 use std::{error, fmt, io, num};
 use std::convert::From;
 
+use postgres;
+
 #[derive(Debug)]
 pub enum ProcessError {
 	IoErr(io::Error),
 	EanLenErr(String),
 	BadEan(String),
 	UnknownMode(u8)
+}
+
+#[derive(Debug)]
+pub enum DbError {
+	PostgresError(postgres::error::Error),
+	NoData(String)
 }
 
 impl fmt::Display for ProcessError {

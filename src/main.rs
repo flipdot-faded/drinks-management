@@ -1,3 +1,6 @@
+extern crate postgres;
+
+mod database;
 mod state;
 mod error;
 
@@ -5,6 +8,9 @@ use std::io;
 use std::io::prelude::*;
 use std::process::Command;
 
+use postgres::{Connection, ConnectParams, ConnectTarget, UserInfo, SslMode};
+
+use database::*;
 use state::*;
 use error::*;
 
@@ -14,15 +20,28 @@ fn main() {
 	let stdin = io::stdin();
 	let mut state = State::Null;
 
+	let conn = Connection::connect(ConnectParams {
+		target: ConnectTarget::Tcp("localhost".to_owned()),
+		port: None,
+		user: Some(UserInfo {
+			user: "postgres".to_owned(),
+			password: None
+		}),
+		database: Some("drinks_db".to_owned()),
+		options: Vec::new()
+		}, &SslMode::None)
+		.unwrap();
+
 	for line in stdin.lock().lines() {
-		match process_line(line, &state) {
+		match process_line(line, &state, &conn) {
 			Ok(new_state) => state = new_state,
 			Err(e) => println!("{}", e)
 		}
 	}
 }
 
-fn process_line(line :io::Result<String>, state :&State) -> Result<State, ProcessError> {
+fn process_line(line :io::Result<String>, state :&State, conn :&Connection)
+	-> Result<State, ProcessError> {
 	let ean = try!(line.map_err(ProcessError::IoErr));
 	let len = ean.len();
 	if ![8, 13, 14, 17].contains(&len) {
@@ -36,7 +55,7 @@ fn process_line(line :io::Result<String>, state :&State) -> Result<State, Proces
 				b'0' => ean[len-2..len].parse::<u8>()
 					.map_err(|_| ProcessError::BadEan(ean.clone()))
 					.and_then(process_ctrl_card),
-				b'1' => process_balance_card(&ean),
+				b'1' => process_balance_card(&ean, &conn),
 				_ => Err(ProcessError::UnknownMode(ean_b[2]))
 			},
 			_ => Err(ProcessError::BadEan(ean.clone())) // TODO
@@ -52,9 +71,9 @@ fn process_ctrl_card(num_bottles :u8) -> Result<State, ProcessError> {
 	Ok(State::Null)
 }
 
-fn process_balance_card(ean :&str) -> Result<State, ProcessError> {
-	// TODO: Get balance
-	let balance = 5;
+fn process_balance_card(ean :&str, conn :&Connection)
+	-> Result<State, ProcessError> {
+	let balance = get_card_balance(&ean, &conn).unwrap();
 
 	let status = Command::new(DISPLAY_APP_PATH)
 		.arg(balance.to_string())
